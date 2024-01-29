@@ -1,0 +1,168 @@
+chatwoot:
+  worker:
+    hpa:
+      enabled: true
+    resources:
+      limits:
+        cpu: 3000m
+        memory: 2000Mi
+      requests:
+        cpu: 1500m
+        memory: 1250Mi
+  ingress:
+    enabled: true
+    ingressClassName: alb
+    annotations:
+      alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-southeast-1:977011067610:certificate/94226c53-31d0-4e86-9529-ff183d9fbe7e
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/target-type: ip
+      alb.ingress.kubernetes.io/backend-connection-idle-timeout: "610"
+      alb.ingress.kubernetes.io/group.name: "default"
+    hosts:
+      - host: "raabta.maqsad.net"
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                port:
+                  number: 3000
+    tls: []
+  env:
+    ACTIVE_STORAGE_SERVICE: amazon
+    ANDROID_BUNDLE_ID: com.chatwoot.app
+    ANDROID_SHA256_CERT_FINGERPRINT: "AC:73:8E:DE:EB:56:EA:CC:10:87:02:A7:65:37:7B:38:D4:5D:D4:53:F8:3B:FB:D3:C6:28:64:1D:AA:08:1E:D8"
+    ASSET_CDN_HOST: ""
+    AWS_REGION: "ap-southeast-1"
+    ENABLE_ACCOUNT_SIGNUP: false
+    FB_APP_ID: ""
+    FB_APP_SECRET: ""
+    FB_VERIFY_TOKEN: ""
+    FORCE_SSL: false
+    FRONTEND_URL: "https://raabta.maqsad.net"
+    INSTALLATION_ENV: helm
+    IOS_APP_ID: 6C953F3RX2.com.chatwoot.app
+    LOG_LEVEL: info
+    LOG_SIZE: 500
+    MAILER_INBOUND_EMAIL_DOMAIN: ""
+    MAILER_SENDER_EMAIL: "notify@maqsad.io"
+    MAILGUN_INGRESS_SIGNING_KEY: ""
+    MANDRILL_INGRESS_API_KEY: ""
+    RAILS_ENV: production
+    RAILS_INBOUND_EMAIL_PASSWORD: ""
+    RAILS_INBOUND_EMAIL_SERVICE: ""
+    RAILS_LOG_TO_STDOUT: true
+    RAILS_MIN_THREADS: 7
+    RAILS_MAX_THREADS: 10
+    WEB_CONCURRENCY: 3
+    REDIS_SENTINEL_MASTER_NAME: ""
+    REDIS_SENTINELS: ""
+    REDIS_TLS: false
+    S3_BUCKET_NAME: "maq-bucket-saarif-release"
+    SECRET_KEY_BASE: replace_with_your_super_duper_secret_key_base
+    SENTRY_DSN: ""
+    SLACK_CLIENT_ID: ""
+    SLACK_CLIENT_SECRET: ""
+    SMTP_ADDRESS: "smtp.gmail.com"
+    SMTP_AUTHENTICATION: login
+    SMTP_ENABLE_STARTTLS_AUTO: true
+    SMTP_OPENSSL_VERIFY_MODE: none
+    SMTP_PASSWORD: "pque tjnz qfyu fldv"
+    SMTP_PORT: 587
+    SMTP_USERNAME: "cerebro@maqsad.io"
+    TWITTER_APP_ID: ""
+    TWITTER_CONSUMER_KEY: ""
+    TWITTER_CONSUMER_SECRET: ""
+    TWITTER_ENVIRONMENT: ""
+    USE_INBOX_AVATAR_FOR_BOT: true
+
+deployments:
+  builder:
+    image:
+      repository: baptistearno/typebot-builder
+    config:
+      ENCRYPTION_SECRET: kEEuBVTjsBqnz04OJLlxM5A0t5VJiEA8
+      DATABASE_URL: postgresql://typebot:typebot@raabta-release-postgresql:5432/typebot-db
+      NEXTAUTH_URL: https://typebot.maqsad.net
+      NEXT_PUBLIC_VIEWER_URL: https://typebot-viewer.maqsad.net
+      ADMIN_EMAIL: abuzar@maqsad.io
+      WHATSAPP_PREVIEW_FROM_PHONE_NUMBER_ID: "101705236210544"
+      META_SYSTEM_USER_TOKEN: EAAOnBaAEZC8ABO8iSezZAmivURhPprkPz7MZADLaYDVDTZBrZALezoezi41bboYToH2SmNz5GihgNfgx6oegTd62TZCEY45j1o54L6D4mvqDwRr1062kdxYcKsMHp1Ye6HOxYnMCSXs2aIBJuTzwkVZCDKRuS4LLZCMmXKyKxcDsAIlKqQBtPEsNF9hrVRfCpbgkjKC2vrVKT9qTaeuvAvj5wAZC0ngDU6mmmis8ZD
+      WHATSAPP_PREVIEW_TEMPLATE_NAME: "hello_world"
+      DEBUG: true
+      GOOGLE_CLIENT_ID: 819638282172-48h6o559h7t2pvrgr8ipou5purqt240e.apps.googleusercontent.com
+      GOOGLE_CLIENT_SECRET: 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
+      NEXT_PUBLIC_GOOGLE_API_KEY: AIzaSyBLp5itLikSulyZd-bDXv2SEih0LI-FMpE
+
+  viewer:
+    image:
+      repository: baptistearno/typebot-viewer
+    config:
+      ENCRYPTION_SECRET: kEEuBVTjsBqnz04OJLlxM5A0t5VJiEA8
+      DATABASE_URL: postgresql://typebot:typebot@raabta-release-postgresql:5432/typebot-db
+      NEXTAUTH_URL: https://typebot.maqsad.net
+      NEXT_PUBLIC_VIEWER_URL: https://typebot-viewer.maqsad.net
+      ADMIN_EMAIL: abuzar@maqsad.io
+      WHATSAPP_PREVIEW_FROM_PHONE_NUMBER_ID: "101705236210544"
+      META_SYSTEM_USER_TOKEN: EAAOnBaAEZC8ABO8iSezZAmivURhPprkPz7MZADLaYDVDTZBrZALezoezi41bboYToH2SmNz5GihgNfgx6oegTd62TZCEY45j1o54L6D4mvqDwRr1062kdxYcKsMHp1Ye6HOxYnMCSXs2aIBJuTzwkVZCDKRuS4LLZCMmXKyKxcDsAIlKqQBtPEsNF9hrVRfCpbgkjKC2vrVKT9qTaeuvAvj5wAZC0ngDU6mmmis8ZD
+      WHATSAPP_PREVIEW_TEMPLATE_NAME: "hello_world"
+      DEBUG: true
+      GOOGLE_CLIENT_ID: 819638282172-48h6o559h7t2pvrgr8ipou5purqt240e.apps.googleusercontent.com
+      GOOGLE_CLIENT_SECRET: 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
+      NEXT_PUBLIC_GOOGLE_API_KEY: AIzaSyBLp5itLikSulyZd-bDXv2SEih0LI-FMpE
+  typebot-middleware:
+    image:
+      repository: 977011067610.dkr.ecr.ap-southeast-1.amazonaws.com/be-cloud-saarif-typebot-middleware-service
+      tag: "latest"
+    config:
+      BROKERS: b-1.backendstreamsdat.3nbm5j.c5.kafka.ap-southeast-1.amazonaws.com:9092,b-2.backendstreamsdat.3nbm5j.c5.kafka.ap-southeast-1.amazonaws.com:9092,b-3.backendstreamsdat.3nbm5j.c5.kafka.ap-southeast-1.amazonaws.com:9092
+      PORT: 8080
+      TYPEBOT_BASE_URL: https://typebot-viewer.maqsad.net/api
+      TYPEBOT_FLOW_ID: default
+      RAABTA_API_URL: https://raabta.maqsad.net
+      RAABTA_BOT_ACCESS_TOKEN: QMJWpZo4C78XePNJtt9nLxbz
+      AGENT_ACCOUNT_ID: 2
+
+ingress:
+  enabled: true
+  annotations:
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-southeast-1:977011067610:certificate/94226c53-31d0-4e86-9529-ff183d9fbe7e
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/backend-connection-idle-timeout: "610"
+    alb.ingress.kubernetes.io/group.name: "default"
+  className: "alb"
+  hosts:
+    - host: typebot.maqsad.net
+      paths:
+        - path: /middleware
+          pathType: Prefix
+          postfix: typebot-middleware
+          port: 8080
+    - host: typebot.maqsad.net
+      paths:
+        - path: /
+          pathType: Prefix
+          postfix: builder
+          port: 3000
+    - host: typebot-viewer.maqsad.net
+      paths:
+        - path: /
+          pathType: Prefix
+          postfix: viewer
+          port: 3000
+
+cronjob:
+  chatwoot:
+    username: typebot
+    password: typebot
+    service: raabta-release-postgresql
+    database: typebot-db
+  typebot:
+    username: postgres
+    password: postgres
+    database: chatwoot_production
+    service: raabta-release-chatwoot-postgresql
+cronjobConfigs:
+  s3Bucket: maqsad-pvc-backups
+    

@@ -1,0 +1,28 @@
+{
+  "name": "cdk",
+  "version": "0.1.0",
+  "bin": {
+    "daakiya-cdk": "bin/app.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.10",
+    "@types/node": "^18.7.6",
+    "aws-cdk": "^2.89.0",
+    "jest": "^26.4.2",
+    "ts-jest": "^26.2.0",
+    "ts-node": "^9.0.0",
+    "typescript": "~5.1.6"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.38.0",
+    "constructs": "^10.1.79",
+    "dotenv": "^16.0.1",
+    "maq-ecs-construct": "^3.2.0"
+  }
+}

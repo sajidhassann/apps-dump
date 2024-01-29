@@ -1,0 +1,184 @@
+# Default values for chatwoot
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+# Overrides the image tag whose default is the chart appVersion.
+image:
+  repository: chatwoot/chatwoot
+  tag: v3.3.1
+  pullPolicy: IfNotPresent
+
+# Set to autoscaling/v2beta2 for older versions of kubernetes that do not have autoscaling/v2 API (pre v1.26)
+# See https://kubernetes.io/docs/reference/using-api/deprecation-guide/#horizontalpodautoscaler-v126
+autoscaling:
+  apiVersion: autoscaling/v2
+
+web:
+  hpa:
+    # set this to true to enable horizontal pod autoscaling
+    # uncomment values.resources section if hpa is enabled
+    enabled: false
+    cputhreshold: 75
+    minpods: 1
+    maxpods: 10
+  replicaCount: 1
+  resources:
+    {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 500m
+    #   memory: 512Mi
+    # requests:
+    #   cpu: 250m
+    #   memory: 256Mi
+worker:
+  hpa:
+    # set this to true to enable horizontal pod autoscaling
+    # uncomment values.resources section if hpa is enabled
+    enabled: false
+    cputhreshold: 75
+    minpods: 2
+    maxpods: 10
+  replicaCount: 2
+  resources:
+    {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 500m
+    #   memory: 512Mi
+    # requests:
+    #   cpu: 250m
+    #   memory: 256Mi
+
+services:
+  name: chatwoot
+  internalPort: 3000
+  targetPort: 3000
+  type: ClusterIP
+  annotations:
+    {}
+    # For example
+    #  service.beta.kubernetes.io/aws-load-balancer-type: external
+    #  service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
+    #  service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: "maq-saarif-service-account"
+
+podAnnotations: {}
+
+podSecurityContext:
+  {}
+  # fsGroup: 2000
+
+securityContext:
+  {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+
+nodeSelector: {}
+
+affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+              - key: "type"
+                operator: "In"
+                values: ["high-availability-node-pool"]
+tolerations:
+  - key: "ha-nodes"
+    operator: "Equal"
+    value: "true"
+    effect: "NoSchedule"
+
+postgresql:
+  enabled: true
+  nameOverride: chatwoot-postgresql
+  auth:
+    username: postgres
+    postgresPassword: postgres
+    database: chatwoot_production
+    # when existingSecret is defined auth.password, auth.PostgressPassword
+    # is ignored.
+    # existingSecret: secret-name
+    # secretKeys:
+    #   adminPasswordKey: postgres-password
+    #   replicationPasswordKey: replication-password
+  # The following variables are only used when internal PG is disabled
+  # postgresqlHost: postgres
+  # postgresqlPort: 5432
+
+redis:
+  enabled: true
+  nameOverride: chatwoot-redis
+  auth:
+    password: redis
+    # when defined the password field is ignored
+    #    existingSecret: secret-name
+    #    existingSecretPasswordKey: ""
+  # The following variables are only used when internal Redis is disabled
+  # host: redis
+  # Just omit the password field if your redis cluster doesn't use password
+  # password: redis
+  # port: 6379
+  master:
+    persistence:
+      enabled: true
+      # If change pvc size redis.master.persistence.size: 20Gi
+  replica:
+    replicaCount: 1
+
+# Provide affinity for hooks if needed
+hooks:
+  affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+              - key: "type"
+                operator: "In"
+                values: ["high-availability-node-pool"]
+  tolerations:
+    - key: "ha-nodes"
+      operator: "Equal"
+      value: "true"
+      effect: "NoSchedule"
+  migrate:
+    env: []
+    resources:
+      limits:
+        memory: 500Mi
+      requests:
+        memory: 100Mi
+    # Defaults to performing the DB migration job after the install/upgrade.
+    # Can be overridden to "pre-install,pre-upgrade" with caution to perform migrations that are sometimes required for the deployment to become healthy
+    hookAnnotation: "post-install,post-upgrade"
+
+# ENVIRONMENT VARIABLES
+
+# If set, will apply environment variables found in this secret, after the variables defined in the env key.
+existingEnvSecret: ""

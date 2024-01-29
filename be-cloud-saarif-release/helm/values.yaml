@@ -1,0 +1,95 @@
+deployments:
+  builder:
+    service:
+      type: ClusterIP
+      port: 3000
+    healthCheckPath: "/"
+    image:
+      pullPolicy: IfNotPresent
+      tag: "latest"
+    resources: {}
+    autoscaling:
+      replicaCount: 1
+      enabled: false
+
+  viewer:
+    service:
+      type: ClusterIP
+      port: 3000
+    healthCheckPath: "/"
+    image:
+      pullPolicy: IfNotPresent
+      tag: "latest"
+    config: {}
+    resources: {}
+    autoscaling:
+      replicaCount: 1
+      enabled: false
+
+  typebot-middleware:
+    service:
+      type: ClusterIP
+      port: 8080
+    healthCheckPath: "/middleware"
+    image:
+      pullPolicy: IfNotPresent
+    config: {}
+    resources: {}
+    autoscaling:
+      replicaCount: 1
+      enabled: false
+
+postgresql:
+  enabled: true
+  ## Authentication parameters
+  auth:
+    ## The name of an existing secret that contains the postgres password.
+    existingSecret:
+    ## PostgreSQL name for a custom user to create
+    username: typebot
+    ## PostgreSQL password for the custom user to create. Ignored if `auth.existingSecret` with key `password` is provided
+    password: typebot
+    ## PostgreSQL name for a custom database to create
+    database: typebot-db
+  primary:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: "type"
+                  operator: "In"
+                  values: ["high-availability-node-pool"]
+    tolerations:
+      - key: "ha-nodes"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+# Backend Settings
+serviceAccount:
+  create: false
+  annotations: {}
+  name: "maq-saarif-service-account"
+
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: "type"
+              operator: "In"
+              values: ["high-availability-node-pool"]
+tolerations:
+  - key: "ha-nodes"
+    operator: "Equal"
+    value: "true"
+    effect: "NoSchedule"
+
+nodeSelector: {}
+
+cronjob: {}
+  
+cronjobConfigs:
+  schedule: "*/30 * * * *"
+  serviceAccountName: backup-service-account
+  

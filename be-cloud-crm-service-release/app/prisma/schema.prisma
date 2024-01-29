@@ -1,0 +1,350 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["filteredRelationCount"]
+  binaryTargets   = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Agent {
+  id        String   @id @default(uuid())
+  fName     String   @map("f_name") @db.VarChar(255)
+  lName     String   @map("l_name") @db.VarChar(255)
+  email     String   @db.VarChar(255)
+  number    String?
+  role      Role
+  status    Status   @default(ENABLE)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@index([role])
+  @@map("agents")
+}
+
+model Ticket {
+  id                        String                  @id @default(uuid())
+  username                  String                  @db.VarChar(255)
+  isRead                    Boolean                 @default(false) @map("is_read")
+  status                    TicketStatus            @default(UNREAD)
+  number                    String
+  agentID                   String?
+  agentEmail                String?
+  currentMenu               String?                 @map("current_menu") @db.VarChar(255)
+  menuSent                  Boolean                 @default(false) @map("menu_sent")
+  mode                      TicketMode              @default(CHAT_BOT)
+  messages                  TicketMessage[]
+  tags                      Json? //@default("[]")
+  workingHoursMessageExpiry Int                     @default(0) @map("working_hours_message_expiry")
+  createdAt                 DateTime                @default(now()) @map("created_at")
+  updatedAt                 DateTime                @default(now()) @updatedAt @map("updated_at")
+  lastMessageAt             DateTime                @default(now()) @map("last_message_at")
+  ticketAgentAssignment     TicketAgentAssignment[]
+  userProperties            Json?                   @map("user_properties")
+
+  @@index([number, status])
+  @@map("ticket")
+}
+
+model TicketMessage {
+  id            String        @id @default(uuid())
+  ticketID      String        @map("ticket_id") @db.VarChar(255)
+  recipientID   String        @map("recipient_id")
+  content       String        @db.LongText
+  mimeType      String?       @map("mime_type")
+  mediaURL      String?       @map("media_url")
+  metaID        String?       @map("meta_id")
+  isRead        Boolean       @default(false) @map("is_read")
+  recipientType RecipientType @map("recipient_type")
+  ticket        Ticket        @relation(fields: [ticketID], references: [id])
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @default(now()) @updatedAt @map("updated_at")
+
+  @@index([ticketID])
+  @@map("ticket_message")
+}
+
+model TicketAgentAssignment {
+  id         String   @id @default(uuid())
+  ticketID   String   @map("ticket_id") @db.VarChar(255)
+  agentID    String   @map("agent_id") @db.VarChar(255)
+  agentEmail String   @map("agent_email") @db.VarChar(255)
+  ticket     Ticket   @relation(fields: [ticketID], references: [id])
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@index([ticketID, agentEmail])
+  @@map("ticket_agent_assignment")
+}
+
+model Cohort {
+  id           String       @id @default(uuid())
+  name         String       @db.VarChar(255)
+  adminID      String       @map("admin_id") @db.VarChar(255)
+  type         String
+  availability Availability @default(RELEASED)
+  calls        CohortCall[]
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @default(now()) @updatedAt @map("updated_at")
+
+  @@index([availability])
+  @@map("cohort")
+}
+
+model CohortCall {
+  id             String          @id @default(uuid())
+  fName          String          @map("first_name") @db.VarChar(255)
+  lName          String          @map("last_name") @db.VarChar(255)
+  cohortID       String          @map("cohort_id") @db.VarChar(255)
+  notes          String?
+  interestedIn   String?         @map("interested_in")
+  interestStatus InterestStatus? @map("interest_status")
+  number         String
+  isTuition      Boolean?        @map("is_tuition")
+  board          String?
+  status         CallStatus      @default(PENDING)
+  agentID        String?         @map("agent_id")
+  phoneType      PhoneType?      @map("phone_type")
+  tags           Json?
+  availability   Availability    @default(RELEASED)
+  cohort         Cohort          @relation(fields: [cohortID], references: [id])
+  grade          String?
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @default(now()) @updatedAt @map("updated_at")
+
+  @@index([cohortID, availability])
+  @@index([agentID])
+  @@map("cohort_call")
+}
+
+model CohortCallLog {
+  id           String   @id @default(uuid())
+  cohortCallID String   @map("cohort_call_id") @db.VarChar(255)
+  agentID      String   @map("agent_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("cohort_call_log")
+}
+
+model Macro {
+  id           String       @id @default(uuid())
+  title        String
+  response     String       @db.Text
+  tags         Json?
+  availability Availability @default(RELEASED)
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @default(now()) @updatedAt @map("updated_at")
+
+  @@index([availability])
+  @@map("macros")
+}
+
+enum Status {
+  ENABLE
+}
+
+enum WhatsAppMessageStatus {
+  UNAVAILABLE
+  SENT
+  DELIVERED
+  FAILED
+}
+
+enum WhatsAppChatStatus {
+  CHAT_BOT
+  AGENT
+}
+
+enum CallStatus {
+  PENDING
+  COMPLETED
+  CONNECTED
+  IN_PROGRESS
+  PICKED_UP
+  HUNG_UP
+  CALL_BACK
+}
+
+enum TicketStatus {
+  PENDING
+  SOLVED
+  OPEN
+  CLOSED
+  UNREAD
+}
+
+enum TicketMode {
+  CHAT_BOT
+  AGENT
+}
+
+enum RecipientType {
+  USER
+  AGENT
+  CHAT_BOT
+}
+
+enum InterestStatus {
+  INTERESTED
+  NOT_INTERESTED
+  AFFORDABILITY_ISSUE
+  IRRELEVANT
+  MIGHT_BE_INTERESTED
+  CALL_BACK
+}
+
+enum PhoneType {
+  SHARED
+  PERSONAL
+}
+
+enum Availability {
+  RELEASED
+  COMING_SOON
+  ARCHIVED
+  DELETED
+}
+
+enum Role {
+  AGENT_CX
+  AGENT_SALES
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum TicketTags {
+  GENERAL_INFORMATION
+  PAST_PAPERS
+  CAREERS
+  DOUBTASKEDDIRECTLY
+  JUNIORS
+  TECHNICAL_ISSUE
+  INCOMPLETE_CHAPTERS
+  WRONG_ANSWER
+  USER_FEEDBACK
+  OTHER_BOARD
+  DS_MONETIZATION
+  DS_SALE
+  SIKKAY_INFO
+  DS_SIKKAY_SALE
+  FB_DIRECT
+  SOLUTION_DELAYED
+  HOW_TO_USE
+  ONLINE_CLASSES_TEACHER
+  MDCAT
+  ECAT
+  MDCAT_PURCHASE
+  ECAT_PURCHASE
+  APPRECIATION
+  DS_INFO
+  URDU_MEDIUM
+  UNIVERSITY
+  PASTPAPER_SALE
+  VIDEO_LECTURE_SALE
+  TESTS_SALE
+  NEGATIVE
+  IRRELEVANT
+  NO_CONVERSATION
+  TEST_MONETIZATION
+  VIDEO_LECTURE
+  TESTS_INFO
+  SUBJECT_REQUESTS
+  PAYMENT_ISSUE
+  PAYMENT_INFO
+  AFFORDABILITY
+  REQUESTED_FOR_NOTES
+  WHATSAPP_GROUP
+  GUESS_PAPERS
+  MARVEL_SUBMISSION
+  PROMO_CODE
+  BUSINESS_QUERY
+  MATHS
+  PHYSICS
+  CHEMISTRY
+  BIOLOGY
+  ENGLISH
+  COMPUTER
+  STATISTICS
+  ACCOUNTING
+  ECONOMICS
+  SENIOR
+  ARTS
+  CLASS_1
+  CLASS_2
+  CLASS_3
+  CLASS_4
+  CLASS_5
+  CLASS_6
+  CLASS_7
+  CLASS_8
+  CLASS_9
+  CLASS_10
+  CLASS_11
+  CLASS_12
+  EXAM_BUNDLE
+  OTP_ISSUE
+  REVISION_BUNDLE
+}
+
+
+
+//OLD
+
+model TicketAgentAssignmentOld {
+  id         String   @id @default(uuid())
+  ticketID   String   @map("ticket_id") @db.VarChar(255)
+  agentID    String   @map("agent_id") @db.VarChar(255)
+  agentEmail String   @map("agent_email") @db.VarChar(255)
+  ticket     TicketOld   @relation(fields: [ticketID], references: [id])
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@index([ticketID, agentEmail])
+  @@map("ticket_agent_assignment_old")
+}
+
+model TicketOld {
+  id                        String                  @id @default(uuid())
+  username                  String                  @db.VarChar(255)
+  isRead                    Boolean                 @default(false) @map("is_read")
+  status                    TicketStatus            @default(UNREAD)
+  number                    String
+  agentID                   String?
+  agentEmail                String?
+  currentMenu               String?                 @map("current_menu") @db.VarChar(255)
+  menuSent                  Boolean                 @default(false) @map("menu_sent")
+  mode                      TicketMode              @default(CHAT_BOT)
+  messages                  TicketMessageOld[]
+  tags                      Json? //@default("[]")
+  workingHoursMessageExpiry Int                     @default(0) @map("working_hours_message_expiry")
+  createdAt                 DateTime                @default(now()) @map("created_at")
+  updatedAt                 DateTime                @default(now()) @updatedAt @map("updated_at")
+  lastMessageAt             DateTime                @default(now()) @map("last_message_at")
+  ticketAgentAssignment     TicketAgentAssignmentOld[]
+  userProperties            Json?                   @map("user_properties")
+
+  @@index([number, status])
+  @@map("ticket_old")
+}
+
+
+model TicketMessageOld {
+  id            String        @id @default(uuid())
+  ticketID      String        @map("ticket_id") @db.VarChar(255)
+  recipientID   String        @map("recipient_id")
+  content       String        @db.LongText
+  mimeType      String?       @map("mime_type")
+  mediaURL      String?       @map("media_url")
+  metaID        String?       @map("meta_id")
+  isRead        Boolean       @default(false) @map("is_read")
+  recipientType RecipientType @map("recipient_type")
+  ticket        TicketOld        @relation(fields: [ticketID], references: [id])
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @default(now()) @updatedAt @map("updated_at")
+
+  @@index([ticketID])
+  @@map("ticket_message_old")
+}

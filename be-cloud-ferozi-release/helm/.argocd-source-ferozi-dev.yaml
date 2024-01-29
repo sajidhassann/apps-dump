@@ -1,0 +1,14 @@
+helm:
+  parameters:
+  - name: deployments.app.image.repository
+    value: 629776801916.dkr.ecr.ap-southeast-1.amazonaws.com/be-cloud-ferozi-service
+    forcestring: true
+  - name: deployments.app.image.tag
+    value: 1aeb746756bb1d86d7f05896485e6c9966f759a6
+    forcestring: true
+  - name: deployments.web.image.repository
+    value: 629776801916.dkr.ecr.ap-southeast-1.amazonaws.com/be-web-ferozi-service
+    forcestring: true
+  - name: deployments.web.image.tag
+    value: 1aeb746756bb1d86d7f05896485e6c9966f759a6
+    forcestring: true

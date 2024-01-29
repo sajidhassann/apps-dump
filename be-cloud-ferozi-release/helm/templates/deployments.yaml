@@ -1,0 +1,79 @@
+{{- $appName :=  include "app.fullname" . }}
+{{- $releaseName :=  .Release.Name }}
+{{- $labels :=  include "app.labels" . | nindent 4  }}
+{{- $serviceAccountName :=  include "app.serviceAccountName" . }}
+
+
+{{- range $name, $v := .Values.deployments }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $appName }}-{{$name}}
+  labels:
+    {{- $labels }}
+spec:
+  {{- if not $v.autoscaling.enabled }}
+  replicas: {{ $v.autoscaling.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ $appName }}-{{$name}}
+  template:
+    metadata:
+      {{- with $.Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app.kubernetes.io/name: {{ $appName }}-{{$name}}
+        app.kubernetes.io/instance: {{ $releaseName }}
+    spec:
+      {{- with $.Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ $serviceAccountName }}
+      securityContext:
+        {{- toYaml $.Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ $.Chart.Name }}
+          securityContext:
+            {{- toYaml $.Values.securityContext | nindent 12 }}
+          image: "{{ .image.repository }}:{{ .image.tag }}"
+          imagePullPolicy: {{ $v.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ $v.service.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: {{ $v.healthCheckPath }}
+              port: http
+            initialDelaySeconds: 60
+          readinessProbe:
+            httpGet:
+              path: {{ $v.healthCheckPath }}
+              port: http
+            initialDelaySeconds: 60
+          resources:
+            {{- toYaml $v.resources | nindent 12 }}
+        {{- if $v.config }}
+          envFrom:
+            - configMapRef:
+                name: {{ $.Release.Namespace }}-{{ $appName }}-{{$name}}
+        {{- end -}}
+      {{- with $.Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+{{- end }}

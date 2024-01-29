@@ -1,0 +1,17 @@
+{
+  "extends": [
+    "mantine",
+    "plugin:@next/next/recommended",
+    "plugin:storybook/recommended"
+  ],
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "rules": {
+    "react/react-in-jsx-scope": "off",
+    "import/extensions": "off",
+    "no-unused-vars": "off",
+    "no-console": "off",
+    "import/no-named-as-default": "off"
+  }
+}

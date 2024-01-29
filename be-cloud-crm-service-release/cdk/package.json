@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "aws-cdk-lib": "^2.38.0",
+    "constructs": "^10.1.79",
+    "dotenv": "^16.0.1",
+    "maq-ecs-construct": "^3.2.0",
+    "typescript": "^4.7.4"
+  },
+  "devDependencies": {
+    "@types/node": "^18.7.6"
+  }
+}

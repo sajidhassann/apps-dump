@@ -1,0 +1,111 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+ 
+generator db {
+  provider = "go run github.com/steebchen/prisma-client-go"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id     String  @id @unique
+  tokens Token[]
+
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+  cohorts   CohortUser[]
+
+  @@map("user")
+}
+
+model Token {
+  token  String  @id @unique
+  userID String? @map("user_id")
+  user   User?   @relation(fields: [userID], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("token")
+}
+
+model Cohort {
+  id   String @id @default(uuid())
+  name String
+
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+  users     CohortUser[]
+
+  @@map("cohort")
+}
+
+model CohortUser {
+  userID String @map("user_id")
+  user   User   @relation(fields: [userID], references: [id])
+
+  cohortID String @map("cohort_id")
+  cohort   Cohort @relation(fields: [cohortID], references: [id])
+
+  @@id([userID, cohortID])
+  @@map("cohort_user")
+}
+
+model NotificationMeta {
+  id       String                @id @default(uuid())
+  data     Json 
+  notifications  Notification[]
+  campaign Campaign?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+	@@map("notification_meta")
+}
+
+model Notification {
+  id     String             @id @default(uuid())
+  token  String             
+  userID String             @map("user_id")
+  status NotificationStatus @default(PENDING)
+
+  metaID String       @map("meta_id")
+  meta   NotificationMeta @relation(fields: [metaID], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+	@@map("notification")
+}
+
+model Campaign {
+  id             String @id @default(uuid())
+  name           String
+  criteria       Json   @map("criteria")
+  notificationMetaID String @unique @map("notification_meta_id")
+  status         CampaignStatus @default(INITIATED)
+
+  notificationMeta NotificationMeta @relation(fields: [notificationMetaID], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("campaign")
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  RECIEVED
+  OPEN
+  FAILED
+}
+
+enum CampaignStatus {
+  INITIATED
+  CREATION_IN_PROGRESS
+
+}

@@ -1,0 +1,57 @@
+`generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["tracing"]
+  binaryTargets   = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Ferozi {
+  id             String       @id @default(uuid()) @map("id")
+  name           String       @map("name")
+  passPercentage Int          @map("pass_percentage")
+  sqlQuery       String       @map("sql_query")
+  isActive       Boolean      @map("is_active")
+  maxCapacity    Int          @map("max_capacity")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  metaData       Json?        @map("meta_data")
+  type           FeroziType   @map("type")
+  nature         FeroziNature @default(OPTIMISTIC) @map("nature")
+  users          UserFerozi[]
+
+  @@map("ferozi")
+}
+
+model UserFerozi {
+  feroziID     String           @map("ferozi_id")
+  userID       String           @map("user_id")
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @updatedAt @map("updated_at")
+  status       UserFeroziStatus @map("status")
+  acknowledged Boolean          @default(false) @map("acknowledged")
+  ferozi       Ferozi           @relation(fields: [feroziID], references: [id])
+
+  @@id([feroziID, userID])
+  @@map("user_ferozi")
+}
+
+enum UserFeroziStatus {
+  SAMPLE
+  CONTROL
+  TREATMENT
+  DISCARD
+}
+
+enum FeroziType {
+  INAPP_POPUP
+  OTHER
+}
+
+enum FeroziNature {
+  OPTIMISTIC
+  PESSIMISTIC
+}

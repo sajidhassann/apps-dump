@@ -1,0 +1,9 @@
+package.json
+.next
+node_modules
+.gitignore
+next-config.js
+next-env.d.ts
+tsconfig.json
+yarn.lock
+public/

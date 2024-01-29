@@ -1,0 +1,52 @@
+deployments:
+  app:
+    image:
+      repository: 977011067610.dkr.ecr.ap-southeast-1.amazonaws.com/be-cloud-ferozi-service
+    config:
+      ENV_NAME: release
+      JARVIS_URL: https://jarvis:CbwqStfDb8znCQ@jarvis.maqsad.net:443
+      PUBLIC_BUCKET: maq-bucket-app-release
+      TRINO_PASSWORD: CbwqStfDb8znCQ
+      TRINO_USERNAME: jarvis
+      BROKER: b-1.backendstreamsdat.3nbm5j.c5.kafka.ap-southeast-1.amazonaws.com:9092,b-2.backendstreamsdat.3nbm5j.c5.kafka.ap-southeast-1.amazonaws.com:9092,b-3.backendstreamsdat.3nbm5j.c5.kafka.ap-southeast-1.amazonaws.com:9092
+      DATABASE_URL: postgresql://druid:druid@ferozi-release-postgresql-ha-pgpool:5432/haazir
+      CONSUMER_GROUP_ID: ferozi-service
+      USER_FEROZI_INSERT_BATCH_SIZE: 1000
+      USER_FEROZI_TOPIC: FEROZI_TASKS
+      TRACING_URL: http://signoz-release-otel-collector.surveillance.svc.cluster.local:4318/v1/traces
+
+  web:
+    image:
+      repository: 977011067610.dkr.ecr.ap-southeast-1.amazonaws.com/be-web-ferozi-service
+
+ingress:
+  enabled: true
+  annotations:
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-southeast-1:977011067610:certificate/94226c53-31d0-4e86-9529-ff183d9fbe7e
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/backend-connection-idle-timeout: '610'
+    alb.ingress.kubernetes.io/group.name: 'default'
+  className: "alb"
+  hosts: 
+    - host: ferozi.maqsad.net
+      paths:
+      - path: /api
+        pathType: Prefix
+        postfix: app
+        port: 3000
+    - host: ferozi.maqsad.net
+      paths:
+      - path: /
+        pathType: Prefix
+        postfix: web
+        port: 3000
+
+cronjob:
+  serviceAccountName: backup-service-account
+  schedule: "*/2 * * * *"
+  s3Bucket: maqsad-pvc-backups
+  db: 
+    name: haazir
+    username: druid
+    password: druid

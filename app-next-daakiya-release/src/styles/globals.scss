@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  line-height: 1.4 !important;
+}
+
+ul {
+  list-style: disc;
+  margin-left: 1.2rem;
+}
+
+ol {
+  list-style: auto;
+  margin-left: 1.2rem;
+}
+
+$tree-color: #dddddd;
+
+.tree {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.base-tree {
+  background-color: $tree-color;
+  content: "";
+  position: absolute;
+}
+
+.tree::before {
+  @extend .base-tree;
+  bottom: -39px;
+  height: 56px;
+  left: 14px;
+  width: 2px;
+}
+
+.tree::after {
+  @extend .base-tree;
+  bottom: -39px;
+  height: 2px;
+  left: 15px;
+  width: 32px;
+}
+
+
+
+

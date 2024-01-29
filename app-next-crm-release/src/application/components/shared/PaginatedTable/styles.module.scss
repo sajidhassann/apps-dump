@@ -1,0 +1,70 @@
+.tableBorder {
+  border: 1px solid #E2E2E2;
+  box-sizing: border-box;
+  //border-radius: 20px;
+}
+
+.tableRowBorderBottom {
+
+  tr {
+	border-bottom: 3px solid #F8F9FC;
+	border-top: 3px solid #F8F9FC;
+  }
+}
+
+.tableHeadBorderBottom {
+
+  tr {
+	border-bottom: 6px solid #F8F9FC;
+  }
+}
+
+.textDarkGrey {
+  color: #1B2559;
+}
+
+.textBlack {
+  span {
+	color: black !important;
+  }
+}
+
+.bgGrey {
+  background-color: #F8F9FC;
+}
+
+.borderBottomRadius20 {
+  border-bottom-right-radius: 20px;
+  border-bottom-left-radius: 20px;
+}
+
+.textVerticalCenter {
+  vertical-align: middle !important;
+}
+
+.minHeight {
+  min-height: 30rem !important;
+}
+
+//.pageItem {
+//  a, span {
+//	border: none !important;
+//	background-color: transparent !important;
+//  }
+//}
+//
+//.pageItem {
+//  span {
+//	color: black !important;
+//  }
+//}
+//
+//.disabled {
+//  span {
+//	color: lightgrey !important;
+//  }
+//}
+
+.page-item.disabled .page-link {
+  color: lightgrey !important;
+}

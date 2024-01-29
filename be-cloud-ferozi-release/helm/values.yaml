@@ -1,0 +1,185 @@
+
+deployments:
+  app:
+    service:
+      type: ClusterIP
+      port: 3000
+    healthCheckPath: "/api/health"
+    image:
+      pullPolicy: IfNotPresent
+      tag: "latest"
+    resources: {}
+    autoscaling:
+      replicaCount: 1
+      enabled: false
+
+  web:
+    service:
+      type: ClusterIP
+      port: 3000
+    healthCheckPath: "/"
+    image:
+      pullPolicy: IfNotPresent
+      tag: "latest"
+    config: {}
+    resources: {}
+    autoscaling:
+      replicaCount: 1
+      enabled: false
+
+postgresql:
+  enabled: false
+  ## Authentication parameters
+  auth:
+    ## The name of an existing secret that contains the postgres password.
+    existingSecret:
+    ## PostgreSQL name for a custom user to create
+    username: druid
+    ## PostgreSQL password for the custom user to create. Ignored if `auth.existingSecret` with key `password` is provided
+    password: druid
+    ## PostgreSQL name for a custom database to create
+    database: druid
+
+  primary:
+    extendedConfiguration: |-
+      wal_level = logical
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+              - key: "type"
+                operator: "In"
+                values: ["high-availability-node-pool"]
+    tolerations:
+      - key: "ha-nodes"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+
+  readReplicas:
+    name: read
+    replicaCount: 2
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+              - key: "type"
+                operator: "In"
+                values: ["high-availability-node"]
+    tolerations:
+      - key: "ha-nodes"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+
+
+postgresql-ha:
+  persistence:
+    size: 30Gi
+  enabled: true
+  global:
+    postgresql:
+      username: druid
+      password: druid
+      database: druid
+      repmgrPassword: repmgr
+
+  postgresql:
+    syncReplication: true
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 3000Mi
+      requests:
+        cpu: 500m
+        memory: 2000Mi
+    image:
+      debug: true
+    replicaCount: 3
+    postgresPassword: druid
+    configuration: |-
+      listen_addresses = '*'
+      port = '5432'
+      max_connections = '25000'
+      wal_level = 'logical'
+      fsync = 'on'
+      max_wal_size = '400MB'
+      archive_mode = 'on'
+      archive_command = '/bin/true'
+      max_wal_senders = '16'
+      max_replication_slots = '10'
+      logging_collector = 'on'
+      log_directory = '/opt/bitnami/postgresql/logs'
+      log_filename = 'postgresql.log'
+      log_connections = 'false'
+      log_disconnections = 'false'
+      log_hostname = 'true'
+      client_min_messages = 'error'
+      include_dir = 'conf.d'
+      pgaudit.log_catalog = 'off'
+      shared_preload_libraries = 'repmgr'
+      hot_standby = 'on'
+      zero_damaged_pages = 'on'
+
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+              - key: "type"
+                operator: "In"
+                values: ["high-availability-node-pool"]
+    tolerations:
+      - key: "ha-nodes"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+  pgpool:
+    resources:
+      limits:
+        cpu: 600m
+        memory: 1000Mi
+      requests:
+        cpu: 250m
+        memory: 500Mi
+    image:
+      debug: true
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+              - key: "type"
+                operator: "In"
+                values: ["high-availability-node-pool"]
+    tolerations:
+      - key: "ha-nodes"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+
+
+# Backend Settings
+serviceAccount:
+  create: false
+  annotations: {}
+  name: "maq-ferozi-service-account"
+
+
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+          - key: "type"
+            operator: "In"
+            values: ["high-availability-node-pool"]
+tolerations:
+  - key: "ha-nodes"
+    operator: "Equal"
+    value: "true"
+    effect: "NoSchedule"
+
+cronjob: {}

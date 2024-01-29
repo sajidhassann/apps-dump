@@ -1,0 +1,48 @@
+name: Deploy CRM-Service Resources via CDK
+
+on:
+  push:
+    branches:
+      - dev
+      - release
+    paths:
+      - "cdk/**"
+      - ".github/workflows/cdk.yml"
+
+
+
+jobs:
+  aws_cdk_deploy:
+    runs-on: ubuntu-latest
+    #     if: github.event.pull_request.merged == 'true'
+    steps:
+      - name: Extract Branch Name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Env Setup
+        run: echo "ENV_NAME=${{steps.extract_branch.outputs.branch}}" >> $GITHUB_ENV
+      - run: |
+          cd ./cdk/
+          npm install
+
+      - name: create env file
+        run: |
+          cd ./cdk/
+          touch .env
+          echo envName=${{ steps.extract_branch.outputs.branch }} >> .env
+
+      - name: CDK Deploy
+        run: |
+          cd ./cdk/
+          npm install -g aws-cdk
+          cdk deploy --require-approval never --all
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: "ap-southeast-1"
+          keyName: ${{ secrets.AWS_KEY_NAME }}

@@ -1,0 +1,135 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id     String  @id
+  tokens Token[]
+
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+  cohorts   CohortUser[]
+
+  @@map("user")
+}
+
+model Token {
+  token  String  @id
+  userID String? @map("user_id")
+  user   User?   @relation(fields: [userID], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("token")
+}
+
+model Cohort {
+  id   String @id @default(uuid())
+  name String
+
+  createdAt DateTime         @default(now()) @map("created_at")
+  updatedAt DateTime         @updatedAt @map("updated_at")
+  users     CohortUser[]
+  campaigns CampaignCohort[]
+
+  @@map("cohort")
+}
+
+model CohortUser {
+  userID String @map("user_id")
+  user   User   @relation(fields: [userID], references: [id])
+
+  cohortID String @map("cohort_id")
+  cohort   Cohort @relation(fields: [cohortID], references: [id])
+
+  @@id([userID, cohortID])
+  @@map("cohort_user")
+}
+
+model NotificationMeta {
+  id            String         @id @default(uuid())
+  title         String
+  body          String
+  link          String?
+  notifications Notification[]
+  campaign      Campaign?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("notification_meta")
+}
+
+model Notification {
+  id              String             @id @default(uuid())
+  token           String
+  userID          String             @map("user_id")
+  status          NotificationStatus @default(PENDING)
+  fcmMessageID    String?            @map("fcm_message_id")
+  fcmErrorStatus  String?            @map("fcm_error_status")
+  fcmErrorCode    String?            @map("fcm_error_code")
+  fcmErrorReason  String?            @map("fcm_error_reason")
+  fcmErrorDetails String?            @map("fcm_error_details")
+
+  metaID String           @map("meta_id")
+  meta   NotificationMeta @relation(fields: [metaID], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([metaID, status])
+  @@map("notification")
+}
+
+model Campaign {
+  id                 String         @id @default(uuid())
+  name               String
+  notificationMetaID String         @unique @map("notification_meta_id")
+  status             CampaignStatus @default(INITIATED)
+
+  campaignCohorts  CampaignCohort[]
+  notificationMeta NotificationMeta @relation(fields: [notificationMetaID], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@map("campaign")
+}
+
+model CampaignCohort {
+  campaignID String   @map("campaign_id")
+  campaign   Campaign @relation(fields: [campaignID], references: [id])
+
+  cohortID String @map("cohort_id")
+  cohort   Cohort @relation(fields: [cohortID], references: [id])
+
+  @@id([campaignID, cohortID])
+  @@map("campaign_cohort")
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  RECEIVED
+  OPEN
+  FAILED
+}
+
+enum CampaignStatus {
+  INITIATED
+  CREATION_IN_PROGRESS
+  CREATION_COMPLETE
+  SENDING_IN_PROGRESS
+  SENDING_COMPLETE
+}

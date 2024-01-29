@@ -1,0 +1,28 @@
+name: Deploy Middleware
+
+on:
+  push:
+    branches:
+      - dev
+      - release
+      
+    paths:
+      - "typebot-middleware/**"
+      - ".github/workflows/ecr-middleware.yml"
+
+
+
+
+jobs:
+  deploy-hydra-admin:
+    uses: maqsad-io/github-workflows/.github/workflows/ecr.yml@main
+    with:
+      path: ./typebot-middleware/
+      cluster_name: Maqsad-${GITHUB_REF#refs/heads/}
+      service_name: haazir-service
+      repository_name: be-cloud-saarif-typebot-middleware-service
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_ROLE: CrossAccountSignin-Tools

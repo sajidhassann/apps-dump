@@ -1,0 +1,8 @@
+helm:
+  parameters:
+  - name: deployments.typebot-middleware.image.repository
+    value: 629776801916.dkr.ecr.ap-southeast-1.amazonaws.com/be-cloud-saarif-typebot-middleware-service
+    forcestring: true
+  - name: deployments.typebot-middleware.image.tag
+    value: 029f4ef0156a763837391e3f7d83d88a4ff9e237
+    forcestring: true

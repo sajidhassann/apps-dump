@@ -1,0 +1,17 @@
+export enum NotionDatabaseObjectsEnum {
+	OBJECT = 'object',
+	ID = 'id',
+	CREATED_TIME = 'created_time',
+	CREATED_BY = 'created_by',
+	LAST_EDITED_TIME = 'last_edited_time',
+	LAST_EDITED_BY = 'last_edited_by',
+	TITLE = 'title',
+	DESCRIPTION = 'description',
+	ICON = 'icon',
+	COVER = 'cover',
+	PROPERTIES = 'properties',
+	PARENT = 'parent',
+	URL = 'url',
+	ARCHIVED = 'archived',
+	IS_INLINE = 'is_inline',
+}

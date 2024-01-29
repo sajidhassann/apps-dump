@@ -1,0 +1,17 @@
+export enum NotionObjectTypesEnum {
+  PAGE = 'page',
+  DATABASE = 'database',
+  USER = 'user',
+  PEOPLE = 'people',
+  BLOCK = 'block',
+  TEXT = 'text',
+  RICH_TEXT = 'rich_text',
+  PARAGRAPH = 'paragraph',
+  EMAIL = 'email',
+  PHONE_NUMBER = 'phone_number',
+  NUMBER = 'number',
+  FILES = 'files',
+  FILE = 'file',
+  SELECT = 'select',
+  TITLE = 'title',
+}

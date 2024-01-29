@@ -1,0 +1,8 @@
+helm:
+  parameters:
+  - name: deployments.app.image.repository
+    value: 629776801916.dkr.ecr.ap-southeast-1.amazonaws.com/be-cloud-saarif-raabta-service
+    forcestring: true
+  - name: deployments.app.image.tag
+    value: d5f45b614e221b94688828b14b6609ca36e18584
+    forcestring: true

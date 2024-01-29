@@ -1,0 +1,50 @@
+{
+  "vpc-provider:account=629776801916:filter.isDefault=true:region=ap-southeast-1:returnAsymmetricSubnets=true": {
+    "vpcId": "vpc-027690c8afdc01664",
+    "vpcCidrBlock": "172.31.0.0/16",
+    "availabilityZones": [],
+    "subnetGroups": [
+      {
+        "name": "Public",
+        "type": "Public",
+        "subnets": [
+          {
+            "subnetId": "subnet-02fdb2474a4c5f269",
+            "cidr": "172.31.32.0/20",
+            "availabilityZone": "ap-southeast-1a",
+            "routeTableId": "rtb-0ec92dabe82aecf1c"
+          },
+          {
+            "subnetId": "subnet-0be907476041089d7",
+            "cidr": "172.31.16.0/20",
+            "availabilityZone": "ap-southeast-1b",
+            "routeTableId": "rtb-0ec92dabe82aecf1c"
+          },
+          {
+            "subnetId": "subnet-0fe908a3e5cf53127",
+            "cidr": "172.31.0.0/20",
+            "availabilityZone": "ap-southeast-1c",
+            "routeTableId": "rtb-0ec92dabe82aecf1c"
+          }
+        ]
+      }
+    ]
+  },
+  "ssm:account=629776801916:parameterName=Maqsad-App-dev-ALB-HTTPS-Listener-ARN:region=ap-southeast-1": "arn:aws:elasticloadbalancing:ap-southeast-1:629776801916:listener/app/Maqsad-App-dev-ALB/15aca35218715b92/becc753932fbc283",
+  "ssm:account=629776801916:parameterName=maqsad-app-cluster-arn:region=ap-southeast-1": "arn:aws:ecs:ap-southeast-1:629776801916:cluster/Maqsad-dev",
+  "ssm:account=629776801916:parameterName=maqsad-app-cluster-name:region=ap-southeast-1": "Maqsad-dev",
+  "ssm:account=629776801916:parameterName=Maqsad-App-dev-internal-ALB-URL:region=ap-southeast-1": "internal-Maqsad-App-dev-internal-ALB-175685586.ap-southeast-1.elb.amazonaws.com",
+  "load-balancer-listener:account=629776801916:listenerArn=arn$:aws:elasticloadbalancing:ap-southeast-1:629776801916:listener/app/Maqsad-App-dev-ALB/15aca35218715b92/becc753932fbc283:listenerProtocol=HTTP:loadBalancerType=application:region=ap-southeast-1": {
+    "listenerArn": "arn:aws:elasticloadbalancing:ap-southeast-1:629776801916:listener/app/Maqsad-App-dev-ALB/15aca35218715b92/becc753932fbc283",
+    "listenerPort": 443,
+    "securityGroupIds": [
+      "sg-02b1002a39a0a5122"
+    ]
+  },
+  "security-group:account=629776801916:region=ap-southeast-1:securityGroupId=sg-02b1002a39a0a5122": {
+    "securityGroupId": "sg-02b1002a39a0a5122",
+    "allowAllOutbound": false
+  },
+  "ssm:account=629776801916:parameterName=/dev/cluster_oidc_arn:region=ap-southeast-1": "arn:aws:iam::629776801916:oidc-provider/oidc.eks.ap-southeast-1.amazonaws.com/id/806320FB8D3F88815F1E4FB59C83C7C0",
+  "ssm:account=629776801916:parameterName=/dev/cluster_cdk_role:region=ap-southeast-1": "arn:aws:iam::629776801916:role/kubectl-role"
+}

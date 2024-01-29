@@ -1,0 +1,3 @@
+package constants
+
+const RAABTA_EVENT_CHANNEL = "RAABTA_EVENT_CHANNEL"

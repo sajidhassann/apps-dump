@@ -1,0 +1,48 @@
+{
+  "files.autoSave": "afterDelay",
+  "editor.formatOnType": true,
+  "redhat.telemetry.enabled": true,
+  "editor.inlineSuggest.enabled": true,
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "vim.cursorStylePerMode.insert": "block",
+  "latex-workshop.view.pdf.viewer": "tab",
+  "files.exclude": {
+    "**/.classpath": true,
+    "**/.project": true,
+    "**/.settings": true,
+    "**/.factorypath": true
+  },
+  "explorer.confirmDelete": false,
+  "github.copilot.enable": {
+    "*": true,
+    "yaml": false,
+    "plaintext": false,
+    "markdown": false,
+    "latex": false,
+    "python": true,
+    "javascript": true
+  },
+  "workbench.preferredHighContrastColorTheme": "Visual Studio Light",
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "githubPullRequests.pullBranch": "never",
+  "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 4 }",
+  "editor.formatOnSave": false,
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "editor.tabSize": 2,
+  "[python]": {
+    "editor.formatOnType": true
+  },
+  "json.schemas": [
+  
+    
+  ],
+}

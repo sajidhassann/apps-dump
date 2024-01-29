@@ -1,0 +1,67 @@
+import { AuthManager } from '../../services/auth'
+import { UserRole } from '@/application/constants/enums/user.role.enum'
+import { NetworkingManger } from '@/application/services/networking'
+
+export interface UserData {
+    readonly id: string
+    readonly fName?: string
+    readonly lName?: string
+    readonly email?: string
+    readonly photo?: string
+    readonly number?: string
+    readonly role: UserRole
+}
+
+export class User {
+    readonly id: string = ''
+    readonly fName: string
+    readonly lName: string
+    readonly email: string
+    readonly photo: string
+    readonly number: string
+    role: UserRole // TODO: add modifier
+
+    constructor(data: UserData) {
+        this.id = data?.id
+        this.fName = data?.fName ?? ''
+        this.lName = data?.lName ?? ''
+        this.email = data?.email ?? ''
+        this.photo = data?.photo ?? ''
+        this.number = data?.number ?? ''
+        this.role = data?.role ?? UserRole.UNKNOWN
+
+    }
+
+    static async loadUser(): Promise<User> {
+        console.log('GETTING USER')
+
+        const authUser = await AuthManager.shared.getUser()
+        // const databaseUser: DoubtSolverDB = await DatabaseManager.getDoubtSolver(authUser.id)
+        console.log('authUser = ', authUser)
+
+        const user = new User(
+            authUser
+        )
+
+        console.log('user', user)
+
+        return user
+    }
+
+
+    // loadUserStatus
+    async loadUserData(): Promise<void> {
+        // const data = await DatabaseManager.user.retrieve.getUserData(this.id)
+        // const data: any = null // TODO: get data from api
+        //
+        // if (!data) return
+        //
+        // if (process.env.NODE_ENV === 'production')
+        //     this.role = data.role
+        // else
+        const res = await NetworkingManger.agent.create.createAgent(this)
+        console.log(res.data)
+        this.role = UserRole.AGENT
+    }
+
+}

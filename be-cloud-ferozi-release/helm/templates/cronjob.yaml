@@ -1,0 +1,31 @@
+{{- if .Values.cronjob }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ferozi-pvc-backup-cronjob
+  namespace: backup
+spec:
+  schedule: {{.Values.cronjob.schedule | quote}}
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: {{.Values.cronjob.serviceAccountName}}
+          containers:
+          - name: ferozi-backup-container
+            image: ammartaimoori/aws-cli-postgres:v3.0.1  # Use an image with awscli and kubectl
+            env:
+            - name: PGPASSWORD
+              value: {{.Values.cronjob.db.password | quote}}
+            command:
+              - "/bin/sh"
+              - "-c"
+            args:
+              - >-
+                echo "Starting PostgreSQL backup at $(date)" &&
+                pg_dump -h ferozi-release-postgresql-ha-postgresql.{{.Release.Namespace}}.svc.cluster.local -U {{.Values.cronjob.db.username}} {{.Values.cronjob.db.name}}
+                | aws s3 cp - s3://{{.Values.cronjob.s3Bucket}}/{{.Release.Namespace}}/ferozi-backup.sql &&
+                echo "PostgreSQL backup completed at $(date)"
+          restartPolicy: OnFailure
+{{- end}}
+

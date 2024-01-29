@@ -1,0 +1,20 @@
+{{- $appName :=  include "app.fullname" . }}
+
+{{- range $name, $v := .Values.deployments }}
+{{- if $v.config }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $.Release.Namespace }}-{{ $appName }}-{{$name}}
+  namespace: {{ $.Release.Namespace }}
+  labels: {{- range $key, $value := $.Values.labels }}
+    {{ $key }}: {{ $value }}
+    {{- end }}
+data:
+  {{- range $key, $value := $v.config }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  
+{{- end }}
+{{- end }}
